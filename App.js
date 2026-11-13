@@ -522,8 +522,80 @@
       '</form>';
   }
 
+  /* --- профиль в стиле Codeforces: рейтинг, ранг, статистика --- */
+  const RANKS = [
+    { min: 0, k: 'rk0' }, { min: 100, k: 'rk1' }, { min: 250, k: 'rk2' }, { min: 500, k: 'rk3' },
+    { min: 900, k: 'rk4' }, { min: 1400, k: 'rk5' }, { min: 2000, k: 'rk6' }
+  ];
+  function profileData() {
+    const p = getProgress(), tk = getTasks();
+    const lessons = (p.py || []).length + (p.cpp || []).length;
+    const lessonsAll = COURSES.py.lessons.length + COURSES.cpp.lessons.length;
+    const tasks = (tk.py || []).length + (tk.cpp || []).length;
+    const solvedIds = arSolved();
+    const solved = ARCHIVE.filter(x => solvedIds.includes(x.id));
+    const typing = store.get('cs_typing', { best: {}, history: [] });
+    const wpm = Math.max(0, ...Object.values(typing.best || {}).map(b => b.wpm || 0));
+    const quiz = store.get('cs_quiz', null);
+    const act = store.get('cs_activity', {});
+    const days = Object.keys(act).filter(k => act[k] > 0).length;
+    const rating = lessons * 10 + tasks * 2 + solved.reduce((a, x) => a + Math.round(x.rating / 20), 0) + (quiz ? Math.round(quiz.best / 2) : 0) + wpm;
+    let ri = 0; RANKS.forEach((r, i) => { if (rating >= r.min) ri = i; });
+    return { lessons, lessonsAll, tasks, solved, wpm, quiz, days, rating, ri };
+  }
+  function profileHTML() {
+    const u = userInfo, d = profileData();
+    const rank = RANKS[d.ri], next = RANKS[d.ri + 1];
+    const pct = next ? Math.round((d.rating - rank.min) / (next.min - rank.min) * 100) : 100;
+    const row = (k, v) => '<li><span>' + k + '</span><b>' + v + '</b></li>';
+    // решено по сложности (рейтинг задач, как на Codeforces)
+    const rates = Array.from(new Set(ARCHIVE.map(x => x.rating))).sort((a, b) => a - b);
+    const diffRows = rates.map(r => {
+      const all = ARCHIVE.filter(x => x.rating === r).length, ok = d.solved.filter(x => x.rating === r).length;
+      return '<li><span class="cf-rt">' + r + '</span><i class="cf-bar"><em style="width:' + Math.round(ok / all * 100) + '%"></em></i><b>' + ok + '/' + all + '</b></li>';
+    }).join('');
+    // решено по темам
+    const tagCount = {};
+    d.solved.forEach(x => x.tags.forEach(t => { tagCount[t] = (tagCount[t] || 0) + 1; }));
+    const tagTop = Object.keys(tagCount).sort((a, b) => tagCount[b] - tagCount[a]).slice(0, 8);
+    const tagRows = tagTop.length
+      ? '<div class="cf-tags">' + tagTop.map(t => '<span class="cf-tag">' + esc(arTag(t)) + ' <b>' + tagCount[t] + '</b></span>').join('') + '</div>'
+      : '<p class="cf-empty">' + tr('pr_no_solved') + ' <a href="#archive">' + tr('pr_to_archive') + '</a></p>';
+    return '<div class="cf">' +
+      '<aside class="card cf-side">' +
+        '<div class="cf-ava">' + avatarHTML(u) + '</div>' +
+        '<p class="cf-rank ' + rank.k + '">' + tr('rank_' + rank.k) + '</p>' +
+        '<h2 class="cf-name ' + rank.k + '">' + esc(u.name) + '</h2>' +
+        (u.bio ? '<p class="cf-bio">' + esc(u.bio) + '</p>' : '') +
+        '<div class="cf-rating"><span>' + tr('pr_rating') + '</span><b class="' + rank.k + '">' + d.rating + '</b></div>' +
+        '<div class="cf-prog" title="' + (next ? esc(tr('pr_next', tr('rank_' + next.k), next.min - d.rating)) : '') + '"><i class="' + rank.k + '" style="width:' + pct + '%"></i></div>' +
+        '<p class="cf-next">' + (next ? tr('pr_next', tr('rank_' + next.k), next.min - d.rating) : tr('pr_top')) + '</p>' +
+        '<p class="cf-mail">' + esc(u.email) + '</p>' +
+        '<div class="cf-actions"><button class="btn primary" data-act="edit">' + tr('pr_edit') + '</button>' +
+        '<button class="btn" data-act="logout">' + tr('pr_logout') + '</button></div>' +
+      '</aside>' +
+      '<div class="cf-main">' +
+        '<section class="card"><h3>' + tr('pr_stats') + '</h3><ul class="cf-list">' +
+          row(tr('pr_s_archive'), d.solved.length + ' / ' + ARCHIVE.length) +
+          row(tr('pr_s_lessons'), d.lessons + ' / ' + d.lessonsAll) +
+          row(tr('pr_s_tasks'), d.tasks) +
+          row(tr('pr_s_quiz'), d.quiz ? d.quiz.best + '%' : '—') +
+          row(tr('pr_s_wpm'), d.wpm || '—') +
+          row(tr('pr_s_days'), d.days) +
+        '</ul></section>' +
+        '<section class="card cf-act"><h3>' + tr('cal_title') + '</h3>' + activityHTML() + '</section>' +
+        '<section class="card"><h3>' + tr('pr_by_diff') + '</h3><ul class="cf-diff">' + diffRows + '</ul></section>' +
+        '<section class="card"><h3>' + tr('pr_by_tag') + '</h3>' + tagRows + '</section>' +
+        '<p class="cf-howto">' + tr('pr_howto') + '</p>' +
+      '</div></div>';
+  }
+
   function renderAuth() {
     const box = $('#auth-box');
+    const wide = !!(sb && userInfo && !needNick && !editing);       // профиль — широкая страница, формы — узкая карточка
+    box.className = wide ? 'profile-page' : 'card auth-box';
+    box.closest('.wrap').classList.toggle('narrow', !wide);
+    $('#login-title').hidden = wide;
     if (!sb) {
       $('#login-title').textContent = tr('login_title');
       box.innerHTML = '<div class="setup-box"><h3>' + tr('srv_down_t') + '</h3>' +
@@ -534,18 +606,7 @@
     if (userInfo && editing) { $('#login-title').textContent = tr('pf_edit_title'); box.innerHTML = profileForm(false); return; }
     if (userInfo) {
       $('#login-title').textContent = tr('pf_title');
-      const p = getProgress();
-      const done = (p.py || []).length + (p.cpp || []).length;
-      const typing = store.get('cs_typing', { best: {}, history: [] });
-      const wpm = Math.max(0, ...Object.values(typing.best).map(b => b.wpm));
-      const quiz = store.get('cs_quiz', null);
-      box.innerHTML =
-        '<div class="profile">' + avatarHTML(userInfo) + '<h2>' + esc(userInfo.name) + '</h2>' +
-        '<p class="sub">' + esc(userInfo.email) + '</p>' + (userInfo.bio ? '<p class="bio">' + esc(userInfo.bio) + '</p>' : '') +
-        '<div class="profile-stats"><div><b>' + done + '</b><span>' + tr('pr_lessons') + '</span></div><div><b>' + wpm + '</b><span>' + tr('st_wpm') + '</span></div><div><b>' + (quiz ? quiz.best + '%' : '—') + '</b><span>' + tr('pr_quiz') + '</span></div></div>' +
-        '<div class="activity"><h3>' + tr('cal_title') + '</h3>' + activityHTML() + '</div>' +
-        '<div class="profile-actions"><button class="btn primary" data-act="edit">' + tr('pr_edit') + '</button>' +
-        '<button class="btn" data-act="logout">' + tr('pr_logout') + '</button></div></div>';
+      box.innerHTML = profileHTML();
       const calSc = box.querySelector('.cal-scroll'); if (calSc) calSc.scrollLeft = calSc.scrollWidth;
       return;
     }
@@ -658,7 +719,6 @@
     const btn = $('button[type="submit"]', f);
     const busy = v => { if (btn) btn.disabled = v; };
     busy(true);
-    setMsg('');
     try {
       if (f.id === 'login-form') {
         const login = f.login.value.trim(), password = f.password.value;
