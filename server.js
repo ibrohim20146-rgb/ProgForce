@@ -22,7 +22,32 @@ const GMAIL_PASS = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
 const FROM_NAME = process.env.FROM_NAME || 'ProgForce';
 if (!GMAIL_USER || !GMAIL_PASS) console.warn('⚠ Не заданы GMAIL_USER / GMAIL_APP_PASSWORD — письма отправляться не будут.');
 
-const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: GMAIL_USER, pass: GMAIL_PASS } });
+const BREVO_API_KEY = (process.env.BREVO_API_KEY || '').trim();
+const BREVO_SENDER = (process.env.BREVO_SENDER || '').trim();
+
+const transporter = {
+  async sendMail({ to, subject, html, text }) {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'api-key': BREVO_API_KEY,
+      },
+      body: JSON.stringify({
+        sender: { name: FROM_NAME, email: BREVO_SENDER },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html || `<p>${text || ''}</p>`,
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('Brevo error:', res.status, err);
+      throw new Error('Brevo ' + res.status);
+    }
+  },
+};
 
 /* ---------- хранилище (JSON-файл) ---------- */
 let db = { users: {}, profiles: {}, sessions: {}, codes: {} };
