@@ -658,6 +658,7 @@
     const btn = $('button[type="submit"]', f);
     const busy = v => { if (btn) btn.disabled = v; };
     busy(true);
+    setMsg('');
     try {
       if (f.id === 'login-form') {
         const login = f.login.value.trim(), password = f.password.value;

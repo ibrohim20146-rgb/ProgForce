@@ -20,9 +20,14 @@ const ORIGIN = process.env.ALLOWED_ORIGIN || '';
 const GMAIL_USER = process.env.GMAIL_USER;
 const GMAIL_PASS = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
 const FROM_NAME = process.env.FROM_NAME || 'ProgForce';
-if (!GMAIL_USER || !GMAIL_PASS) console.warn('⚠ Не заданы GMAIL_USER / GMAIL_APP_PASSWORD — письма отправляться не будут.');
+const BREVO_KEY = process.env.BREVO_API_KEY || '';
+const MAIL_FROM = process.env.MAIL_FROM || GMAIL_USER;
+if (!BREVO_KEY && (!GMAIL_USER || !GMAIL_PASS)) console.warn('⚠ Не заданы GMAIL_USER / GMAIL_APP_PASSWORD — письма отправляться не будут.');
 
-const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: GMAIL_USER, pass: GMAIL_PASS } });
+const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: GMAIL_USER, pass: GMAIL_PASS },
+  connectionTimeout: 8000, greetingTimeout: 8000, socketTimeout: 10000 });   // не висим подолгу, если SMTP закрыт
+if (process.env.RENDER && !BREVO_KEY) console.warn('⚠ BREVO_API_KEY не задан: на Render SMTP закрыт, письма с кодами НЕ отправятся. Добавьте BREVO_API_KEY и MAIL_FROM в Environment.');
+else if (BREVO_KEY) console.log('Письма: Brevo (HTTPS), отправитель ' + MAIL_FROM);
 
 /* ---------- хранилище (JSON-файл) ---------- */
 let db = { users: {}, profiles: {}, sessions: {}, codes: {} };
@@ -110,14 +115,23 @@ async function mailCode(email, lang, kind, code) {
   if (DEV_LOG) { console.log('[DEV] ' + kind + ' code for ' + email + ': ' + code); return; }
   const M = MAILS[lang === 'en' ? 'en' : 'ru'];
   const subject = M[kind] + FROM_NAME + ': ' + code;
+  const html = '<div style="font-family:Arial,sans-serif;max-width:420px;margin:auto;padding:24px;border:1px solid #ddd;border-radius:12px">' +
+    '<h2 style="margin:0 0 12px">' + FROM_NAME + '</h2><p>' + M.body + '</p>' +
+    '<p style="font-size:34px;letter-spacing:8px;font-weight:bold;margin:12px 0">' + code + '</p>' +
+    '<p style="color:#666;font-size:13px">' + M.note + '</p></div>';
+  if (BREVO_KEY) {   // отправка по HTTPS (на бесплатном Render порты SMTP закрыты)
+    const r = await fetch(process.env.BREVO_API_URL || 'https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': BREVO_KEY, 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({ sender: { name: FROM_NAME, email: MAIL_FROM }, to: [{ email }], subject, htmlContent: html, textContent: subject + '\n' + M.note })
+    });
+    if (!r.ok) throw new Error('Brevo ' + r.status + ' ' + (await r.text()).slice(0, 200));
+    return;
+  }
   await transporter.sendMail({
     from: '"' + FROM_NAME + '" <' + GMAIL_USER + '>',
     to: email, subject,
-    text: subject + '\n' + M.note,
-    html: '<div style="font-family:Arial,sans-serif;max-width:420px;margin:auto;padding:24px;border:1px solid #ddd;border-radius:12px">' +
-      '<h2 style="margin:0 0 12px">' + FROM_NAME + '</h2><p>' + M.body + '</p>' +
-      '<p style="font-size:34px;letter-spacing:8px;font-weight:bold;margin:12px 0">' + code + '</p>' +
-      '<p style="color:#666;font-size:13px">' + M.note + '</p></div>'
+    text: subject + '\n' + M.note, html
   });
 }
 
