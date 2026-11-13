@@ -78,75 +78,158 @@ app.get('/robots.txt', (req, res) => res.type('text/plain').send('User-agent: *\
 app.get('/sitemap.xml', (req, res) => res.type('application/xml').send(
   '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>' + siteUrl(req) + '/</loc></url>\n</urlset>\n'));
 
-/* ---------- тексты писем (ru / en) ---------- */
-const MAILS = {
-  ru: {
-    subject: 'Ваш код для входа в ',
-    body: 'Ваш код для входа:',
-    note: 'Код действует 10 минут. Если это были не вы — просто проигнорируйте письмо.'
-  },
-  en: {
-    subject: 'Your sign-in code for ',
-    body: 'Your sign-in code:',
-    note: 'The code is valid for 10 minutes. If it was not you, just ignore this email.'
-  }
+/* ---------- пароли (scrypt) ---------- */
+const scrypt = (pw, salt) => new Promise((ok, no) => crypto.scrypt(pw, salt, 64, (e, k) => e ? no(e) : ok(k)));
+async function hashPw(pw) {
+  const salt = crypto.randomBytes(16);
+  return salt.toString('hex') + ':' + (await scrypt(pw, salt)).toString('hex');
+}
+const DUMMY_HASH = crypto.randomBytes(16).toString('hex') + ':' + crypto.randomBytes(64).toString('hex');
+async function verifyPw(pw, stored) {
+  const [sl, h] = String(stored || DUMMY_HASH).split(':');
+  const a = await scrypt(pw, Buffer.from(sl, 'hex')), b = Buffer.from(h, 'hex');
+  return a.length === b.length && crypto.timingSafeEqual(a, b) && !!stored;
+}
+const PW_OK = pw => typeof pw === 'string' && pw.length >= 8 && pw.length <= 100;
+const norm = v => String(v || '').trim().toLowerCase();
+const userByEmail = email => Object.values(db.users).find(u => u.email === email);
+const userByNick = nick => {
+  const p = Object.values(db.profiles).find(p => p.nickname.toLowerCase() === nick);
+  return p && db.users[p.id];
 };
 
-/* ---------- отправка кода ---------- */
-const ipHits = {};
-app.post('/api/send-code', async (req, res) => {
-  const email = String((req.body || {}).email || '').trim().toLowerCase();
-  if (!MAIL_RE.test(email) || email.length > 120) return fail(res, 400, 'bad_email', 'Некорректный e-mail');
+/* ---------- тексты писем (ru / en) ---------- */
+const MAILS = {
+  ru: { reg: 'Код подтверждения регистрации в ', reset: 'Код для сброса пароля в ', body: 'Ваш код:',
+    note: 'Код действует 10 минут. Если это были не вы — просто проигнорируйте письмо.' },
+  en: { reg: 'Registration code for ', reset: 'Password reset code for ', body: 'Your code:',
+    note: 'The code is valid for 10 minutes. If it was not you, just ignore this email.' }
+};
+const DEV_LOG = process.env.DEV_LOG_CODES === '1';   // только для проверки без почты: печатает коды в консоль
+async function mailCode(email, lang, kind, code) {
+  if (DEV_LOG) { console.log('[DEV] ' + kind + ' code for ' + email + ': ' + code); return; }
+  const M = MAILS[lang === 'en' ? 'en' : 'ru'];
+  const subject = M[kind] + FROM_NAME + ': ' + code;
+  await transporter.sendMail({
+    from: '"' + FROM_NAME + '" <' + GMAIL_USER + '>',
+    to: email, subject,
+    text: subject + '\n' + M.note,
+    html: '<div style="font-family:Arial,sans-serif;max-width:420px;margin:auto;padding:24px;border:1px solid #ddd;border-radius:12px">' +
+      '<h2 style="margin:0 0 12px">' + FROM_NAME + '</h2><p>' + M.body + '</p>' +
+      '<p style="font-size:34px;letter-spacing:8px;font-weight:bold;margin:12px 0">' + code + '</p>' +
+      '<p style="color:#666;font-size:13px">' + M.note + '</p></div>'
+  });
+}
 
+/* ---------- коды из писем и ограничения ---------- */
+const ipHits = {}, loginFails = {};
+function ipLimited(req, max) {                       // не больше max писем в час с одного IP
   const now = Date.now();
   const hits = (ipHits[req.ip] || []).filter(t => now - t < 3600e3);
-  if (hits.length >= 10) return fail(res, 429, 'rate', 'rate limit');
-  const prev = db.codes[email];
-  if (prev && now - prev.sentAt < 60e3) return fail(res, 429, 'rate', 'rate limit');
-
-  const lang = String((req.body || {}).lang || '') === 'en' ? 'en' : 'ru';
-  const M = MAILS[lang];
-  const code = String(crypto.randomInt(100000, 1000000));
-  db.codes[email] = { hash: sha(code + ':' + email), exp: now + 10 * 60e3, tries: 0, sentAt: now };
+  if (hits.length >= max) return true;
   ipHits[req.ip] = hits.concat(now);
-  save();
-  try {
-    await transporter.sendMail({
-      from: '"' + FROM_NAME + '" <' + GMAIL_USER + '>',
-      to: email,
-      subject: M.subject + FROM_NAME + ': ' + code,
-      text: M.subject + FROM_NAME + ': ' + code + '\n' + M.note,
-      html: '<div style="font-family:Arial,sans-serif;max-width:420px;margin:auto;padding:24px;border:1px solid #ddd;border-radius:12px">' +
-        '<h2 style="margin:0 0 12px">' + FROM_NAME + '</h2><p>' + M.body + '</p>' +
-        '<p style="font-size:34px;letter-spacing:8px;font-weight:bold;margin:12px 0">' + code + '</p>' +
-        '<p style="color:#666;font-size:13px">' + M.note + '</p></div>'
-    });
-    res.json({ ok: true });
-  } catch (e) {
-    console.error('Mail error:', e.message);
-    delete db.codes[email]; save();
-    fail(res, 500, 'mail', 'Не удалось отправить письмо');
-  }
-});
-
-/* ---------- проверка кода ---------- */
-app.post('/api/verify', (req, res) => {
-  const email = String((req.body || {}).email || '').trim().toLowerCase();
-  const code = String((req.body || {}).code || '').replace(/\D/g, '');
-  const rec = db.codes[email];
-  if (!rec || Date.now() > rec.exp) return fail(res, 400, 'invalid', 'Invalid or expired code');
-  if (rec.tries >= 5) { delete db.codes[email]; save(); return fail(res, 400, 'invalid', 'Invalid or expired code'); }
+  return false;
+}
+function newCode(key, extra) {
+  const code = String(crypto.randomInt(100000, 1000000));
+  db.codes[key] = Object.assign({ hash: sha(code + ':' + key), exp: Date.now() + 10 * 60e3, tries: 0, sentAt: Date.now() }, extra);
+  return code;
+}
+function checkCode(key, code) {                      // вернёт запись или null; код одноразовый, 5 попыток
+  const rec = db.codes[key];
+  code = String(code || '').replace(/\D/g, '');
+  if (!rec || Date.now() > rec.exp) return null;
+  if (rec.tries >= 5) { delete db.codes[key]; save(); return null; }
   rec.tries++;
-  const a = Buffer.from(sha(code + ':' + email)), b = Buffer.from(rec.hash);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) { save(); return fail(res, 400, 'invalid', 'Invalid or expired code'); }
-
-  delete db.codes[email];
-  let user = Object.values(db.users).find(u => u.email === email);
-  if (!user) { user = { id: crypto.randomUUID(), email, created: Date.now() }; db.users[user.id] = user; }
+  const a = Buffer.from(sha(code + ':' + key)), b = Buffer.from(rec.hash);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) { save(); return null; }
+  delete db.codes[key];
+  return rec;
+}
+function openSession(user) {
   const token = crypto.randomBytes(32).toString('hex');
   db.sessions[sha(token)] = { userId: user.id, created: Date.now() };
+  return { token, user: { id: user.id, email: user.email } };
+}
+const badCode = res => fail(res, 400, 'invalid', 'Invalid or expired code');
+
+/* ---------- регистрация: шаг 1 — данные и код на почту ---------- */
+app.post('/api/register', async (req, res) => {
+  const b = req.body || {};
+  const email = norm(b.email), nick = String(b.nick || '').trim(), pw = b.password;
+  if (!MAIL_RE.test(email) || email.length > 120) return fail(res, 400, 'bad_email', 'Некорректный e-mail');
+  if (!NICK_RE.test(nick)) return fail(res, 400, '23514', 'invalid nickname');
+  if (!PW_OK(pw)) return fail(res, 400, 'weak_password', 'Password must be 8-100 characters');
+  if (userByEmail(email)) return fail(res, 409, 'email_taken', 'Email already registered');
+  if (nickTaken(nick, null)) return fail(res, 409, '23505', 'duplicate');
+  const key = 'reg:' + email, prev = db.codes[key];
+  if ((prev && Date.now() - prev.sentAt < 60e3) || ipLimited(req, 10)) return fail(res, 429, 'rate', 'rate limit');
+  const code = newCode(key, { nick, pass: await hashPw(pw) });
   save();
-  res.json({ token, user: { id: user.id, email: user.email } });
+  try { await mailCode(email, b.lang, 'reg', code); res.json({ ok: true }); }
+  catch (e) { console.error('Mail error:', e.message); delete db.codes[key]; save(); fail(res, 500, 'mail', 'Не удалось отправить письмо'); }
+});
+
+/* ---------- регистрация: шаг 2 — код из письма, создаём аккаунт ---------- */
+app.post('/api/register/verify', (req, res) => {
+  const email = norm((req.body || {}).email);
+  const rec = checkCode('reg:' + email, (req.body || {}).code);
+  if (!rec) return badCode(res);
+  if (userByEmail(email)) return fail(res, 409, 'email_taken', 'Email already registered');
+  if (nickTaken(rec.nick, null)) return fail(res, 409, '23505', 'duplicate');
+  const AV = ['😎', '👾', '🤖', '🦊', '🐱', '🐼', '🦉', '🐍', '🚀', '⚡', '🔥', '🌟', '🎮', '🧠', '🐉', '🦄'];
+  const CL = ['#3dd68c', '#58a6ff', '#b48cff', '#ffa657', '#ff7eb6', '#ff6b6b', '#e3b341', '#2dd4bf'];
+  const user = { id: crypto.randomUUID(), email, pass: rec.pass, created: Date.now() };
+  db.users[user.id] = user;
+  db.profiles[user.id] = { id: user.id, nickname: rec.nick, avatar: AV[crypto.randomInt(AV.length)], color: CL[crypto.randomInt(CL.length)], bio: '', data: {}, created: Date.now() };
+  const out = openSession(user);
+  save();
+  res.json(out);
+});
+
+/* ---------- вход: ник или e-mail + пароль ---------- */
+app.post('/api/login', async (req, res) => {
+  const b = req.body || {};
+  const login = norm(b.login), pw = String(b.password || '');
+  if (!login || login.length > 120 || !pw || pw.length > 100) return fail(res, 401, 'bad_credentials', 'Wrong login or password');
+  const now = Date.now();
+  const recent = k => (loginFails[k] || []).filter(t => now - t < 15 * 60e3);
+  if (recent('ip:' + req.ip).length >= 30 || recent('u:' + login).length >= 10) return fail(res, 429, 'rate', 'rate limit');
+  const user = login.includes('@') ? userByEmail(login) : userByNick(login);
+  if (!(user && await verifyPw(pw, user.pass))) {
+    ['ip:' + req.ip, 'u:' + login].forEach(k => { loginFails[k] = recent(k).concat(now); });
+    return fail(res, 401, 'bad_credentials', 'Wrong login or password');
+  }
+  delete loginFails['u:' + login];
+  const out = openSession(user);
+  save();
+  res.json(out);
+});
+
+/* ---------- забыли пароль: код на Gmail -> новый пароль ---------- */
+app.post('/api/reset/send', async (req, res) => {
+  const email = norm((req.body || {}).email);
+  if (!MAIL_RE.test(email) || email.length > 120) return fail(res, 400, 'bad_email', 'Некорректный e-mail');
+  if (ipLimited(req, 10)) return fail(res, 429, 'rate', 'rate limit');
+  const key = 'reset:' + email, prev = db.codes[key];
+  if (userByEmail(email) && !(prev && Date.now() - prev.sentAt < 60e3)) {     // ответ всегда «ok» — нельзя узнать, есть ли такая почта
+    const code = newCode(key, {});
+    save();
+    try { await mailCode(email, (req.body || {}).lang, 'reset', code); }
+    catch (e) { console.error('Mail error:', e.message); delete db.codes[key]; save(); return fail(res, 500, 'mail', 'Не удалось отправить письмо'); }
+  }
+  res.json({ ok: true });
+});
+app.post('/api/reset/confirm', async (req, res) => {
+  const b = req.body || {}, email = norm(b.email);
+  if (!PW_OK(b.password)) return fail(res, 400, 'weak_password', 'Password must be 8-100 characters');
+  const user = userByEmail(email);
+  if (!checkCode('reset:' + email, b.code) || !user) return badCode(res);
+  user.pass = await hashPw(b.password);
+  Object.keys(db.sessions).forEach(h => { if (db.sessions[h].userId === user.id) delete db.sessions[h]; });   // старые сессии закрываем
+  const out = openSession(user);
+  save();
+  res.json(out);
 });
 
 /* ---------- защищённые методы ---------- */

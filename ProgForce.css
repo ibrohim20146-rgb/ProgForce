@@ -549,3 +549,6 @@ select { background: var(--panel); color: var(--text); border: 1px solid var(--b
 .run-block pre { margin: 0; padding: 12px 14px; max-height: 340px; overflow: auto; background: var(--code-bg); border: 1px solid var(--border); border-radius: calc(10px * var(--rad, 1)); font: calc(.9rem * var(--code-k, 1)) / 1.5 var(--mono); white-space: pre-wrap; word-break: break-word; }
 .run-block.err pre { border-color: var(--danger); }
 @media (max-width: 900px) { .run-grid { grid-template-columns: 1fr; } .run-code { min-height: 320px; } }
+
+.auth-form .btn.ghost { margin-top: 8px; }
+.auth-form .auth-hint { margin: 4px 0 12px; }
