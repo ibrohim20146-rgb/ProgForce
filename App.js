@@ -634,7 +634,7 @@
   });
 
   /* ============ Роутинг ============ */
-  const PAGES = ['home', 'courses', 'archive', 'typing', 'resources', 'quiz', 'settings', 'login'];
+  const PAGES = ['home', 'courses', 'archive', 'run', 'typing', 'resources', 'quiz', 'settings', 'login'];
   function route() {
     let id = location.hash.slice(1).split('/')[0] || 'home';
     if (!PAGES.includes(id)) id = 'home';
@@ -1373,7 +1373,8 @@
       p.ex.map((e, i) => '<div class="ar-ex"><div><div class="ar-ex-h"><span>' + tr('ar_ex_in') + '</span><button class="copy-btn" data-act="copy" data-i="' + i + '">' + tr('copy') + '</button></div><pre>' + esc(e[0]) + '</pre></div>' +
         '<div><div class="ar-ex-h"><span>' + tr('ar_ex_out') + '</span></div><pre>' + esc(e[1]) + '</pre></div></div>').join('') +
       (d.note ? '<h3>' + tr('ar_note') + '</h3><div class="prose">' + arParas(d.note) + '</div>' : '') +
-      '<div class="ar-mark"><button class="btn primary" id="ar-send" data-act="submit" data-id="' + p.id + '">' + tr('ar_send') + '</button></div>' +
+      '<div class="ar-mark"><button class="btn primary" id="ar-send" data-act="submit" data-id="' + p.id + '">' + tr('ar_send') + '</button> ' +
+      '<a class="btn" href="#run" data-act="torun">' + tr('ar_torun') + '</a></div>' +
       '<div class="lesson-actions">' +
       (prev ? '<a class="btn" href="#archive/' + prev.id + '">' + tr('ar_prev') + '</a>' : '<span></span>') +
       (next ? '<a class="btn" href="#archive/' + next.id + '">' + tr('ar_next') + '</a>' : '<span></span>') +
@@ -1404,6 +1405,10 @@
       // Задайте window.ProgForceSubmit = function (problem, id) { ... } — она вызовется при нажатии.
       const p = ARCHIVE.find(x => x.id === id);
       if (p && typeof window.ProgForceSubmit === 'function') window.ProgForceSubmit(p, id);
+    } else if (b.dataset.act === 'torun') {
+      // «Проверить в Запуске»: первый пример идёт в поле ввода раздела «Запуск»
+      const p = ARCHIVE.find(x => x.id === id);
+      if (p && p.ex[0]) { try { sessionStorage.setItem('pf_run_input', p.ex[0][0]); } catch (err) { /* ignore */ } }
     } else if (b.dataset.act === 'copy') {
       const p = ARCHIVE.find(x => x.id === id);
       if (p) copyText(p.ex[+b.dataset.i][0], b);

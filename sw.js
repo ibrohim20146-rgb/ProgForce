@@ -1,8 +1,8 @@
 /* ProgForce service worker: оффлайн-оболочка сайта. API (/api/*) никогда не кэшируется. */
-const VERSION = 'pf-v10';
+const VERSION = 'pf-v11';
 const SHELL = [
   '/', '/ProgForce.css', '/App.js', '/Data.js', '/Data.en.js', '/Archive.js',
-  '/I18n.js', '/Effects.js', '/Chatbot.js', '/server-config.js',
+  '/I18n.js', '/Effects.js', '/Run.js', '/Chatbot.js', '/server-config.js',
   '/favicon.svg', '/favicon.png', '/icons/icon-192.png', '/icons/icon-512.png'
 ];
 

@@ -525,3 +525,27 @@ select { background: var(--panel); color: var(--text); border: 1px solid var(--b
 .cal-legend { display: flex; align-items: center; gap: 4px; justify-content: flex-end; font-size: .72rem; color: var(--muted); margin-top: 4px; }
 .cal-legend span:first-child { margin-right: 4px; } .cal-legend span:last-child { margin-left: 4px; }
 .cal-note { font-size: .8rem; color: var(--muted); margin: 10px 0 0; text-align: center; }
+
+/* ---- Запуск ---- */
+.run-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.run-col { min-width: 0; }
+.run-code, .run-input {
+  width: 100%; box-sizing: border-box; display: block; resize: vertical;
+  background: var(--code-bg); color: var(--text); border: 1px solid var(--border);
+  border-radius: calc(10px * var(--rad, 1)); padding: 12px 14px;
+  font: calc(.9rem * var(--code-k, 1)) / 1.55 var(--mono); tab-size: 4; white-space: pre; overflow: auto;
+}
+.run-code { min-height: 430px; }
+.run-input { min-height: 110px; }
+.run-code:focus, .run-input:focus { outline: 2px solid var(--accent2); outline-offset: 0; }
+.run-out-h { margin-top: 14px; }
+.run-output { min-height: 120px; }
+.run-empty { color: var(--muted); margin: 8px 2px; }
+.run-verdict { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 10px 14px; margin-bottom: 10px; border-radius: calc(10px * var(--rad, 1)); border: 1px solid var(--border); background: var(--panel2); }
+.run-verdict.ok { border-color: var(--accent); color: var(--accent); }
+.run-verdict.bad { border-color: var(--danger); color: var(--danger); }
+.run-verdict span { color: var(--muted); font-size: .9rem; }
+.run-block { margin-bottom: 10px; }
+.run-block pre { margin: 0; padding: 12px 14px; max-height: 340px; overflow: auto; background: var(--code-bg); border: 1px solid var(--border); border-radius: calc(10px * var(--rad, 1)); font: calc(.9rem * var(--code-k, 1)) / 1.5 var(--mono); white-space: pre-wrap; word-break: break-word; }
+.run-block.err pre { border-color: var(--danger); }
+@media (max-width: 900px) { .run-grid { grid-template-columns: 1fr; } .run-code { min-height: 320px; } }

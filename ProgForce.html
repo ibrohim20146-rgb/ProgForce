@@ -23,7 +23,7 @@
   <meta property="og:image" content="__SITE_URL__/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"ProgForce","alternateName":"Prog Force","url":"__SITE_URL__/"}</script>
-  <link rel="stylesheet" href="ProgForce.css?v=20261112h">
+  <link rel="stylesheet" href="ProgForce.css?v=20261113a">
 </head>
 <body>
 
@@ -34,6 +34,7 @@
       <a href="#home" data-nav="home" data-i18n="nav_home">Главная</a>
       <a href="#courses" data-nav="courses" data-i18n="nav_courses">Курсы</a>
       <a href="#archive" data-nav="archive" data-i18n="nav_archive">Архив</a>
+      <a href="#run" data-nav="run" data-i18n="nav_run">Запуск</a>
       <a href="#typing" data-nav="typing" data-i18n="nav_typing">Клавиатура</a>
       <a href="#resources" data-nav="resources" data-i18n="nav_resources">Ресурсы</a>
       <a href="#quiz" data-nav="quiz" data-i18n="nav_quiz">Тест</a>
@@ -82,6 +83,7 @@
       <div class="grid cards">
         <a class="card link-card" href="#courses"><span class="card-ico">📚</span><h3 data-i18n="c_courses_t">Курсы</h3><p data-i18n="c_courses_p">8 уроков по Python и 8 по C++ с примерами и заданиями.</p></a>
         <a class="card link-card" href="#archive"><span class="card-ico">🧩</span><h3 data-i18n="c_archive_t">Архив задач</h3><p data-i18n="c_archive_p">60+ задач в стиле Codeforces: условия, примеры, теги и рейтинг сложности.</p></a>
+        <a class="card link-card" href="#run"><span class="card-ico">▶️</span><h3 data-i18n="c_run_t">Запуск</h3><p data-i18n="c_run_p">Запускайте код на C++ и Python прямо на сайте: свой ввод, вывод и вердикт.</p></a>
         <a class="card link-card" href="#typing"><span class="card-ico">⌨️</span><h3 data-i18n="c_typing_t">Тренажёр клавиатуры</h3><p data-i18n="c_typing_p">Печатай код, символы и тексты. Считаем скорость и точность.</p></a>
         <a class="card link-card" href="#resources"><span class="card-ico">📝</span><h3 data-i18n="c_res_t">Ресурсы</h3><p data-i18n="c_res_p">Сравнение синтаксиса Python и C++ на одной странице.</p></a>
         <a class="card link-card" href="#quiz"><span class="card-ico">🎯</span><h3 data-i18n="c_quiz_t">Тест</h3><p data-i18n="c_quiz_p">Проверь, что запомнил: вопросы по Python и C++.</p></a>
@@ -182,6 +184,35 @@
     </div>
   </section>
 
+  <!-- ЗАПУСК -->
+  <section class="page" id="page-run" hidden>
+    <div class="wrap">
+      <h1 class="page-title" data-i18n="run_title">Запуск</h1>
+      <p class="sub" data-i18n="run_sub">Проверьте свой код на C++ или Python: введите программу и входные данные — и сразу увидите вывод и вердикт, как в «Запуске» на Codeforces.</p>
+      <div class="toolbar">
+        <label><span data-i18n="run_lang">Язык</span>
+          <select id="run-lang"><option value="cpp">C++ 17 (g++)</option><option value="py">Python 3</option></select>
+        </label>
+        <button id="run-go" class="btn primary" data-i18n="run_go">▶ Запустить</button>
+        <button id="run-tpl" class="btn" data-i18n="run_tpl">Шаблон</button>
+        <button id="run-clear" class="btn" data-i18n="run_clear">Очистить ввод</button>
+      </div>
+      <div class="run-grid">
+        <div class="run-col">
+          <div class="ar-ex-h"><span data-i18n="run_code">Код</span></div>
+          <textarea id="run-code" class="run-code" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" data-i18n-attr="aria-label:run_code" aria-label="Код"></textarea>
+        </div>
+        <div class="run-col">
+          <div class="ar-ex-h"><span data-i18n="run_input">Ввод (stdin)</span></div>
+          <textarea id="run-input" class="run-input" spellcheck="false" autocomplete="off" data-i18n-attr="aria-label:run_input" aria-label="Ввод"></textarea>
+          <div class="ar-ex-h run-out-h"><span data-i18n="run_result">Результат</span></div>
+          <div id="run-output" class="run-output" aria-live="polite"></div>
+        </div>
+      </div>
+      <p class="hint" data-i18n="run_hint">Ctrl+Enter — запустить. Код и ввод сохраняются в вашем браузере. Лимиты: время ~3 секунды, память ~512 МБ, вывод до 64 КБ, доступа к интернету у программы нет.</p>
+    </div>
+  </section>
+
   <!-- ВИКТОРИНА -->
   <section class="page" id="page-quiz" hidden>
     <div class="wrap narrow">
@@ -215,12 +246,13 @@
 
 <noscript><p style="padding:20px" data-i18n="noscript">Для работы сайта нужен JavaScript.</p></noscript>
 <script src="server-config.js?v=20261112a"></script>
-<script src="I18n.js?v=20261112f"></script>
+<script src="I18n.js?v=20261113a"></script>
 <script src="Data.js?v=20261112a"></script>
 <script src="Data.en.js?v=20261112a"></script>
 <script src="Archive.js?v=20261112a"></script>
 <script src="Effects.js?v=20261112f"></script>
-<script src="App.js?v=20261112k"></script>
+<script src="App.js?v=20261113a"></script>
+<script src="Run.js?v=20261113a"></script>
 <script src="Chatbot.js?v=20261112a"></script>
 <script>if ("serviceWorker" in navigator) window.addEventListener("load", function () { navigator.serviceWorker.register("/sw.js").catch(function () {}); });</script>
 </body>
