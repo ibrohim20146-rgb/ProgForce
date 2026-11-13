@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="bg" cx=".3" cy=".2" r="1">
+      <stop offset="0" stop-color="#252a52"/>
+      <stop offset=".6" stop-color="#121631"/>
+      <stop offset="1" stop-color="#0a0d1a"/>
+    </radialGradient>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b79cff"/>
+      <stop offset="1" stop-color="#37e0c8"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.2"/>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#bg)"/>
+  <rect x=".75" y=".75" width="62.5" height="62.5" rx="14.3" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="1.5"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g filter="url(#glow)" opacity=".75">
+      <path d="M37.3 17.3A18 18 0 1 0 37.3 46.7" stroke="url(#g)" stroke-width="6"/>
+      <path d="M24 32h9l4.5-9 5 18 3.5-9H56" stroke="#7ff5e0" stroke-width="3.5"/>
+    </g>
+    <path d="M37.3 17.3A18 18 0 1 0 37.3 46.7" stroke="url(#g)" stroke-width="6"/>
+    <path d="M24 32h9l4.5-9 5 18 3.5-9H56" stroke="#eafffb" stroke-width="3.2"/>
+  </g>
+</svg>

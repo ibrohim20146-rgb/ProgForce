@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ProgForce — учим C++ и Python</title>
+  <meta name="description" content="ProgForce — сайт для изучения программирования: уроки по C++ и Python, тренажёр клавиатуры, шпаргалки и тест.">
+  <link rel="alternate" hreflang="ru" href="__SITE_URL__/">
+  <link rel="alternate" hreflang="en" href="__SITE_URL__/">
+  <meta name="application-name" content="ProgForce">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="canonical" href="__SITE_URL__/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ProgForce">
+  <meta property="og:title" content="ProgForce — учим C++ и Python">
+  <meta property="og:description" content="Уроки по C++ и Python, тренажёр клавиатуры, шпаргалки и тест.">
+  <meta property="og:url" content="__SITE_URL__/">
+  <meta property="og:image" content="__SITE_URL__/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"ProgForce","alternateName":"Prog Force","url":"__SITE_URL__/"}</script>
+  <link rel="stylesheet" href="ProgForce.css?v=20261112h">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a href="#home" class="logo"><span class="logo-icon"><img src="favicon.png" alt="" width="32" height="32"></span> ProgForce</a>
+    <nav id="nav" class="nav">
+      <a href="#home" data-nav="home" data-i18n="nav_home">Главная</a>
+      <a href="#courses" data-nav="courses" data-i18n="nav_courses">Курсы</a>
+      <a href="#archive" data-nav="archive" data-i18n="nav_archive">Архив</a>
+      <a href="#typing" data-nav="typing" data-i18n="nav_typing">Клавиатура</a>
+      <a href="#resources" data-nav="resources" data-i18n="nav_resources">Ресурсы</a>
+      <a href="#quiz" data-nav="quiz" data-i18n="nav_quiz">Тест</a>
+      <a href="#settings" data-nav="settings" data-i18n="nav_settings">Настройки</a>
+      <a href="#login" data-nav="login" id="nav-login" class="nav-login">Войти</a>
+      <a href="#home" id="nav-logout" class="nav-logout" data-i18n="nav_logout" hidden>Выйти</a>
+    </nav>
+    <div class="lang-menu"><button id="lang-btn" class="icon-btn lang-btn" data-i18n="lang_btn" data-i18n-attr="aria-label:lang_switch;title:lang_switch" aria-label="Language" title="Language" aria-haspopup="true" aria-expanded="false">RU</button>
+      <div id="lang-list" class="lang-list" hidden></div></div>
+    <button id="theme-btn" class="icon-btn" data-i18n-attr="aria-label:theme_toggle;title:theme_toggle" aria-label="Сменить тему" title="Сменить тему">◐</button>
+    <button id="menu-btn" class="icon-btn menu-btn" data-i18n-attr="aria-label:menu" aria-label="Меню">☰</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ГЛАВНАЯ -->
+  <section class="page" id="page-home">
+    <div class="wrap hero">
+      <div>
+        <p class="eyebrow" data-i18n="h_eyebrow">Учись программировать</p>
+        <h1 data-i18n-html="h_title">Изучай <span class="grad">C++</span> и <span class="grad">Python</span> шаг за шагом</h1>
+        <p class="lead" data-i18n="h_lead">Короткие уроки с примерами кода, тренажёр для быстрой печати, ресурсы со сравнением языков и тест для проверки знаний — всё в одном месте.</p>
+        <div class="cta">
+          <a class="btn primary" href="#courses" data-i18n="h_cta_start">Начать курс</a>
+          <a class="btn" href="#typing" data-i18n="h_cta_typing">Тренажёр клавиатуры</a>
+        </div>
+      </div>
+      <div class="code-window" aria-hidden="true">
+        <div class="code-head"><i></i><i></i><i></i><span>hello.py</span></div>
+<pre><code data-i18n-html="hero_code"><span class="t-c"># Твоя первая программа</span>
+<span class="t-k">def</span> <span class="t-f">hello</span>(name):
+    <span class="t-k">return</span> <span class="t-s">f"Привет, {name}!"</span>
+
+<span class="t-f">print</span>(<span class="t-f">hello</span>(<span class="t-s">"мир"</span>))</code></pre>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div id="home-auth"></div>
+      <div class="stats" id="home-stats"></div>
+    </div>
+
+    <div class="wrap">
+      <h2 class="section-title" data-i18n="h_sections">Разделы сайта</h2>
+      <div class="grid cards">
+        <a class="card link-card" href="#courses"><span class="card-ico">📚</span><h3 data-i18n="c_courses_t">Курсы</h3><p data-i18n="c_courses_p">8 уроков по Python и 8 по C++ с примерами и заданиями.</p></a>
+        <a class="card link-card" href="#archive"><span class="card-ico">🧩</span><h3 data-i18n="c_archive_t">Архив задач</h3><p data-i18n="c_archive_p">60+ задач в стиле Codeforces: условия, примеры, теги и рейтинг сложности.</p></a>
+        <a class="card link-card" href="#typing"><span class="card-ico">⌨️</span><h3 data-i18n="c_typing_t">Тренажёр клавиатуры</h3><p data-i18n="c_typing_p">Печатай код, символы и тексты. Считаем скорость и точность.</p></a>
+        <a class="card link-card" href="#resources"><span class="card-ico">📝</span><h3 data-i18n="c_res_t">Ресурсы</h3><p data-i18n="c_res_p">Сравнение синтаксиса Python и C++ на одной странице.</p></a>
+        <a class="card link-card" href="#quiz"><span class="card-ico">🎯</span><h3 data-i18n="c_quiz_t">Тест</h3><p data-i18n="c_quiz_p">Проверь, что запомнил: вопросы по Python и C++.</p></a>
+        <a class="card link-card" href="#login"><span class="card-ico">👤</span><h3 data-i18n="c_acc_t">Аккаунт</h3><p data-i18n="c_acc_p">Зарегистрируйся, чтобы у каждого был свой прогресс и рекорды.</p></a>
+        <a class="card link-card" href="#settings"><span class="card-ico">⚙️</span><h3 data-i18n="c_set_t">Настройки</h3><p data-i18n="c_set_p">Тема, цвет, размер текста и другие параметры вида сайта.</p></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- КУРСЫ -->
+  <section class="page" id="page-courses" hidden>
+    <div class="wrap">
+      <h1 class="page-title" data-i18n="courses_title">Курсы</h1>
+      <div class="lang-tabs" role="tablist">
+        <button class="lang-tab" data-lang="py">🐍 Python</button>
+        <button class="lang-tab" data-lang="cpp">⚙️ C++</button>
+      </div>
+      <p id="course-desc" class="sub"></p>
+      <div class="progress">
+        <div class="bar"><i id="course-progress-bar"></i></div>
+        <span id="course-progress-text"></span>
+      </div>
+      <div class="course-layout">
+        <aside><ol id="lesson-list" class="lesson-list"></ol></aside>
+        <article id="lesson-view" class="lesson-view card"></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- КЛАВИАТУРА -->
+  <section class="page" id="page-typing" hidden>
+    <div class="wrap">
+      <h1 class="page-title" data-i18n="typing_title">Тренажёр клавиатуры</h1>
+      <p class="sub" data-i18n="typing_sub">Печатай фрагменты кода и текста. Нажми на поле ниже и начинай — таймер запустится с первого символа.</p>
+
+      <div class="toolbar">
+        <label><span data-i18n="typing_mode">Режим</span>
+          <select id="typing-lang">
+            <option value="py">Python</option>
+            <option value="cpp">C++</option>
+            <option value="sym" data-i18n="mode_sym">Символы кода</option>
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+            <option value="tg">Тоҷикӣ</option>
+          </select>
+        </label>
+        <button id="typing-new" class="btn" data-i18n="typing_new">Другой фрагмент</button>
+        <button id="typing-reset" class="btn" data-i18n="typing_reset">Начать заново</button>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><span id="st-wpm">0</span><small data-i18n="st_wpm">слов/мин</small></div>
+        <div class="stat"><span id="st-acc">100%</span><small data-i18n="st_acc">точность</small></div>
+        <div class="stat"><span id="st-time">0.0 с</span><small data-i18n="st_time">время</small></div>
+        <div class="stat"><span id="st-prog">0%</span><small data-i18n="st_prog">прогресс</small></div>
+      </div>
+
+      <div class="typing-box" id="typing-box">
+        <div id="typing-display" class="typing-display" aria-hidden="true"></div>
+        <textarea id="typing-input" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" data-i18n-attr="aria-label:typing_field" aria-label="Поле для печати"></textarea>
+        <div class="typing-overlay" data-i18n="typing_overlay">Нажмите сюда и начинайте печатать</div>
+      </div>
+      <p class="hint" data-i18n="typing_hint">Отступы после Enter ставятся автоматически. Backspace исправляет ошибки. Символ ↵ — это переход на новую строку (клавиша Enter).</p>
+
+      <div class="kb-wrap">
+        <div id="keyboard" class="keyboard" aria-hidden="true"></div>
+        <div id="hands" class="hands" aria-hidden="true"></div>
+      </div>
+
+      <div id="typing-result" class="result card" hidden></div>
+
+      <h2 class="section-title" data-i18n="records">Рекорды</h2>
+      <div id="records" class="records"></div>
+    </div>
+  </section>
+
+  <!-- ШПАРГАЛКИ -->
+  <section class="page" id="page-resources" hidden>
+    <div class="wrap">
+      <h1 class="page-title" data-i18n="res_title">Ресурсы</h1>
+      <p class="sub" data-i18n="res_sub">Выбери тему — откроется объяснение и код на Python и C++.</p>
+      <div id="res-list" class="grid res-grid"></div>
+      <div id="res-detail" hidden></div>
+      <h2 class="section-title" data-i18n="res_diff">Главные отличия</h2>
+      <div class="grid cards two">
+        <div class="card"><h3>🐍 Python</h3><ul class="plain" data-i18n-html="py_li"><li>Блоки выделяются отступами</li><li>Типы определяются автоматически</li><li>Интерпретируемый: запускается сразу</li><li>Короткий код, быстрый старт</li></ul></div>
+        <div class="card"><h3>⚙️ C++</h3><ul class="plain" data-i18n-html="cpp_li"><li>Блоки в фигурных скобках { }</li><li>Типы указываются явно</li><li>Компилируется в машинный код</li><li>Высокая скорость и контроль над памятью</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- АРХИВ ЗАДАЧ -->
+  <section class="page" id="page-archive" hidden>
+    <div class="wrap">
+      <h1 class="page-title" data-i18n="archive_title">Архив задач</h1>
+      <p class="sub" data-i18n="ar_lead">Задачи в стиле Codeforces: прочитайте условие, напишите решение на Python или C++ (ввод — stdin, вывод — stdout), сравните с примерами и отметьте задачу решённой.</p>
+      <div id="archive-view">Загрузка архива… Если эта надпись не пропадает, значит файл Archive.js не найден рядом с ProgForce.html.</div>
+    </div>
+  </section>
+
+  <!-- ВИКТОРИНА -->
+  <section class="page" id="page-quiz" hidden>
+    <div class="wrap narrow">
+      <h1 class="page-title" data-i18n="quiz_title">Тест</h1>
+      <div id="quiz-box" class="card quiz-box">Загрузка теста… Если эта надпись не пропадает, значит файлы Data.js и App.js не найдены рядом с ProgForce.html.</div>
+    </div>
+  </section>
+
+  <!-- ВХОД / РЕГИСТРАЦИЯ -->
+  <section class="page" id="page-login" hidden>
+    <div class="wrap narrow">
+      <h1 class="page-title" id="login-title">Войти</h1>
+      <div id="auth-box" class="card auth-box"></div>
+    </div>
+  </section>
+
+  <!-- НАСТРОЙКИ -->
+  <section class="page" id="page-settings" hidden>
+    <div class="wrap narrow">
+      <h1 class="page-title" data-i18n="set_title">Настройки</h1>
+      <p class="sub" data-i18n="set_sub">Настройте внешний вид ProgForce под себя. Изменения применяются сразу и сохраняются в вашем браузере.</p>
+      <div id="settings-box" class="card settings-box"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap" data-i18n="footer">ProgForce · учись и практикуйся каждый день. Прогресс сохраняется в вашем браузере.</div>
+</footer>
+
+<noscript><p style="padding:20px" data-i18n="noscript">Для работы сайта нужен JavaScript.</p></noscript>
+<script src="server-config.js?v=20261112a"></script>
+<script src="I18n.js?v=20261112f"></script>
+<script src="Data.js?v=20261112a"></script>
+<script src="Data.en.js?v=20261112a"></script>
+<script src="Archive.js?v=20261112a"></script>
+<script src="Effects.js?v=20261112f"></script>
+<script src="App.js?v=20261112k"></script>
+<script src="Chatbot.js?v=20261112a"></script>
+<script>if ("serviceWorker" in navigator) window.addEventListener("load", function () { navigator.serviceWorker.register("/sw.js").catch(function () {}); });</script>
+</body>
+</html>

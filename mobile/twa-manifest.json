@@ -1,0 +1,18 @@
+{
+  "packageId": "com.progforce.app",
+  "host": "ВАШ-ДОМЕН.com",
+  "name": "ProgForce — учим C++ и Python",
+  "launcherName": "ProgForce",
+  "display": "standalone",
+  "themeColor": "#0d1117",
+  "backgroundColor": "#0d1117",
+  "startUrl": "/?source=twa",
+  "iconUrl": "https://ВАШ-ДОМЕН.com/icons/icon-512.png",
+  "maskableIconUrl": "https://ВАШ-ДОМЕН.com/icons/icon-maskable-512.png",
+  "webManifestUrl": "https://ВАШ-ДОМЕН.com/manifest.webmanifest",
+  "appVersionName": "1.0.0",
+  "appVersion": "1",
+  "enableNotifications": false,
+  "fallbackType": "customtabs",
+  "signingKey": { "path": "./android.keystore", "alias": "progforce" }
+}

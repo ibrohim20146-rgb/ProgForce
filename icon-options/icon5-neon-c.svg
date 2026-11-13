@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="cp-c" gradientUnits="userSpaceOnUse" x1="520" y1="260" x2="1130" y2="700">
+      <stop offset="0" stop-color="#46eaff"/>
+      <stop offset=".3" stop-color="#2a6bff"/>
+      <stop offset=".62" stop-color="#6a3cff"/>
+      <stop offset="1" stop-color="#e83cff"/>
+    </linearGradient>
+    <linearGradient id="cp-sw" gradientUnits="userSpaceOnUse" x1="560" y1="300" x2="900" y2="720">
+      <stop offset="0" stop-color="#1230ff" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#5a1cff" stop-opacity=".1"/>
+    </linearGradient>
+    <linearGradient id="cp-pl" gradientUnits="userSpaceOnUse" x1="655" y1="0" x2="1160" y2="0">
+      <stop offset="0" stop-color="#d9f8ff"/>
+      <stop offset=".62" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f0a8ff"/>
+    </linearGradient>
+    <linearGradient id="cp-tail" gradientUnits="userSpaceOnUse" x1="1025" y1="0" x2="1190" y2="0">
+      <stop offset="0" stop-color="#e83cff"/>
+      <stop offset="1" stop-color="#e83cff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="cp-sp" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="580" y2="0">
+      <stop offset="0" stop-color="#2a6bff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#2a6bff"/>
+    </linearGradient>
+    <linearGradient id="cp-sp2" gradientUnits="userSpaceOnUse" x1="440" y1="0" x2="560" y2="0">
+      <stop offset="0" stop-color="#5a3cff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#7a3cff"/>
+    </linearGradient>
+    <radialGradient id="cp-bgglow" cx="256" cy="256" r="250" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2a2cff" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#2a2cff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="cp-blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="cp-blur2" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="7"/></filter>
+    <clipPath id="cp-clip"><rect width="512" height="512" rx="116"/></clipPath>
+    <path id="cp-shape" d="M1025 205 L790 205 C630 205 510 320 510 467 C510 614 630 728 790 728 L1000 728 Q1015 728 1025 718 L1140 598 L1012 598 L782 598 C690 598 640 540 640 452 C640 370 700 306 790 306 L1128 306 L1052 213 Q1042 205 1025 205 Z"/>
+  </defs>
+  <g clip-path="url(#cp-clip)">
+    <rect width="512" height="512" fill="#04040f"/>
+    <rect width="512" height="512" fill="url(#cp-bgglow)"/>
+    <g transform="translate(-208.00 -14.57) scale(0.58)">
+      <g fill="url(#cp-sp)">
+        <rect x="420" y="302" width="170" height="7" rx="3.5"/>
+        <rect x="430" y="463" width="90" height="7" rx="3.5"/>
+        <rect x="445" y="621" width="120" height="7" rx="3.5"/>
+      </g>
+      <g>
+        <rect x="470" y="343" width="110" height="27" rx="13.5" fill="#2a6bff"/>
+        <rect x="440" y="390" width="130" height="24" rx="12" fill="url(#cp-sp)"/>
+        <rect x="465" y="508" width="100" height="30" rx="15" fill="url(#cp-sp2)"/>
+      </g>
+      <use href="#cp-shape" fill="url(#cp-c)" filter="url(#cp-blur)" opacity=".7"/>
+      <use href="#cp-shape" fill="url(#cp-c)"/>
+      <path d="M835 205 C700 268 590 390 592 505 C594 620 690 705 800 728 L905 728 C765 690 652 600 660 480 C668 380 750 290 885 205 Z" fill="url(#cp-sw)" opacity=".85"/>
+      <path d="M520 430 C530 330 620 230 790 210" fill="none" stroke="#b9f6ff" stroke-opacity=".6" stroke-width="7" stroke-linecap="round"/>
+      <path d="M1025 468 L1190 470 L1025 488 Z" fill="url(#cp-tail)"/>
+      <path d="M655 485 L812 489 L878 355 L940 578 L1000 440 L1030 478 L1060 474" fill="none" stroke="#7ee9ff" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" filter="url(#cp-blur2)" opacity=".8"/>
+      <path d="M655 485 L812 489 L878 355 L940 578 L1000 440 L1030 478 L1060 474" fill="none" stroke="url(#cp-pl)" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+  <rect x="1.5" y="1.5" width="509" height="509" rx="114.5" fill="none" stroke="#7a6bff" stroke-opacity=".28" stroke-width="3"/>
+</svg>
