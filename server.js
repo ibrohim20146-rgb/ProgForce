@@ -251,7 +251,7 @@ function cleanProfile(b, needNick) {
   const bad = { error: { code: '23514', message: 'invalid data' } };
   b = b || {};
   if (needNick || b.nickname !== undefined) { if (!NICK_RE.test(String(b.nickname || ''))) return bad; out.nickname = b.nickname; }
-  if (b.avatar !== undefined) { if (typeof b.avatar !== 'string' || !b.avatar || !(b.avatar.length <= 16 || (b.avatar.length < 40000 && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(b.avatar)))) return bad; out.avatar = b.avatar; }
+  if (b.avatar !== undefined) { if (typeof b.avatar !== 'string' || !b.avatar || b.avatar.length > 16) return bad; out.avatar = b.avatar; }
   if (b.color !== undefined) { if (!/^#[0-9a-f]{6}$/i.test(String(b.color))) return bad; out.color = b.color; }
   if (b.bio !== undefined) { if (typeof b.bio !== 'string' || b.bio.length > 80) return bad; out.bio = b.bio; }
   if (b.data !== undefined) {

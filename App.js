@@ -405,7 +405,7 @@
   if (DEMO) sb = demoClient();
   const demoNote = () => DEMO ? tr('demo_note', DEMO_CODE) : '';
 
-  const AVATARS = ['😎', '👾', '🤖', '🦊', '🐱', '🐼', '🦉', '🐍', '🚀', '⚡', '🌟', '🎮', '🧠', '🐉', '🦄'];
+  const AVATARS = ['😎', '👾', '🤖', '🦊', '🐱', '🐼', '🦉', '🐍', '🚀', '⚡', '🔥', '🌟', '🎮', '🧠', '🐉', '🦄'];
   const COLORS = ['#3dd68c', '#58a6ff', '#b48cff', '#ffa657', '#ff7eb6', '#ff6b6b', '#e3b341', '#2dd4bf'];
   const NICK_RE = /^[A-Za-z0-9_А-Яа-яЁё.-]{3,20}$/;
   const MAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -413,30 +413,7 @@
   let needNick = false, editing = false, authTab = 'login', authStep = 'form', pendingEmail = '', pendingReg = null, resendAt = 0, justSignedIn = false;
   let formAvatar = AVATARS[0], formColor = COLORS[0];
 
-  const PHOTO_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
-  const isPhoto = a => typeof a === 'string' && a.length < 40000 && PHOTO_RE.test(a);
-  const avatarInner = a => isPhoto(a) ? '<img src="' + a + '" alt="">' : esc(a);
-  const avatarHTML = u => '<div class="avatar" style="background:' + esc(u.color) + '">' + avatarInner(u.avatar) + '</div>';
-
-  // фото -> квадрат 160x160 JPEG (около 6-10 КБ)
-  function photoToAvatar(file) {
-    return new Promise((resolve, reject) => {
-      if (!file || !/^image\//.test(file.type)) return reject(new Error('not_image'));
-      const url = URL.createObjectURL(file), img = new Image();
-      img.onload = () => {
-        const S = 160, c = document.createElement('canvas'); c.width = c.height = S;
-        const side = Math.min(img.width, img.height), sx = (img.width - side) / 2, sy = (img.height - side) / 2;
-        const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, S, S);
-        g.drawImage(img, sx, sy, side, side, 0, 0, S, S);
-        URL.revokeObjectURL(url);
-        let q = 0.85, out = c.toDataURL('image/jpeg', q);
-        while (out.length > 30000 && q > 0.4) { q -= 0.1; out = c.toDataURL('image/jpeg', q); }
-        resolve(out);
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('bad_image')); };
-      img.src = url;
-    });
-  }
+  const avatarHTML = u => '<div class="avatar" style="background:' + esc(u.color) + '">' + esc(u.avatar) + '</div>';
 
   function authError(e) {
     const m = ((e && e.message) || '').toLowerCase();
@@ -486,7 +463,7 @@
 
   function updateAuthUI() {
     const a = $('#nav-login');
-    if (userInfo && userInfo.name) a.innerHTML = '<span class="nav-ava">' + avatarInner(userInfo.avatar) + '</span><span class="nav-nick">' + esc(userInfo.name) + '</span>';
+    if (userInfo && userInfo.name) a.textContent = userInfo.avatar + ' ' + userInfo.name;
     else if (needNick) a.textContent = tr('nav_finish');
     else a.textContent = tr('nav_login');
     a.classList.toggle('in', !!userInfo);
@@ -536,11 +513,9 @@
       '<label>' + tr('pf_bio') + '<input name="bio" type="text" maxlength="80" value="' + esc(u.bio || '') + '"></label>' +
       '<div class="pf-label">' + tr('pf_avatar') + '</div><div class="emoji-grid">' +
       AVATARS.map(a => '<button type="button" class="emoji-btn' + (a === formAvatar ? ' active' : '') + '" data-emoji="' + a + '">' + a + '</button>').join('') + '</div>' +
-      '<div class="photo-row"><label class="btn small photo-btn">' + tr('pf_photo') + '<input type="file" id="pf-photo" accept="image/*" hidden></label>' +
-      (isPhoto(formAvatar) ? '<button type="button" class="btn small ghost" data-act="photo-remove">' + tr('pf_photo_remove') + '</button>' : '') + '</div>' +
       '<div class="pf-label">' + tr('pf_color') + '</div><div class="color-row">' +
       COLORS.map(c => '<button type="button" class="color-dot' + (c === formColor ? ' active' : '') + '" data-color="' + c + '" style="background:' + c + '" aria-label="' + tr('pf_color_aria') + '"></button>').join('') + '</div>' +
-      '<div class="pf-preview"><div class="avatar" id="pf-av" style="background:' + formColor + '">' + avatarInner(formAvatar) + '</div><b id="pf-name">' + esc(u.name || tr('pf_your_nick')) + '</b></div>' +
+      '<div class="pf-preview"><div class="avatar" id="pf-av" style="background:' + formColor + '">' + formAvatar + '</div><b id="pf-name">' + esc(u.name || tr('pf_your_nick')) + '</b></div>' +
       '<p class="auth-error" id="auth-error" role="alert"></p>' +
       '<button class="btn primary" type="submit">' + (isNew ? tr('pf_done') : tr('pf_save')) + '</button>' +
       (isNew ? '' : '<button class="btn ghost" type="button" data-act="cancel-edit">' + tr('pf_cancel') + '</button>') +
@@ -710,7 +685,7 @@
     if (em) {
       formAvatar = em.dataset.emoji;
       $$('.emoji-btn').forEach(b => b.classList.toggle('active', b === em));
-      $('#pf-av').innerHTML = avatarInner(formAvatar); const pr = $('[data-act="photo-remove"]'); if (pr) pr.remove(); return;
+      $('#pf-av').textContent = formAvatar; return;
     }
     const co = e.target.closest('[data-color]');
     if (co) {
@@ -731,20 +706,6 @@
     else if (act === 'logout') { await sb.auth.signOut(); }
     else if (act === 'edit') { editing = true; formAvatar = userInfo.avatar; formColor = userInfo.color; renderAuth(); }
     else if (act === 'cancel-edit') { editing = false; renderAuth(); }
-    else if (act === 'photo-remove') { formAvatar = AVATARS[0]; renderAuth(); }
-  });
-
-  $('#auth-box').addEventListener('change', async e => {
-    if (e.target.id !== 'pf-photo') return;
-    try {
-      formAvatar = await photoToAvatar(e.target.files[0]);
-      const nick = $('#profile-form input[name="nick"]'), bio = $('#profile-form input[name="bio"]');
-      const keepN = nick ? nick.value : '', keepB = bio ? bio.value : '';
-      renderAuth();
-      const n2 = $('#profile-form input[name="nick"]'), b2 = $('#profile-form input[name="bio"]');
-      if (n2) { n2.value = keepN; const pn = $('#pf-name'); if (pn) pn.textContent = keepN || tr('pf_your_nick'); }
-      if (b2) b2.value = keepB;
-    } catch (err) { const m = $('#auth-error'); if (m) m.textContent = tr('pf_photo_err'); }
   });
 
   $('#auth-box').addEventListener('input', e => {
@@ -919,7 +880,7 @@
     const quiz = store.get('cs_quiz', null);
     const u = userInfo && userInfo.name ? userInfo : null;
     $('#home-auth').innerHTML = u
-      ? '<div class="card home-auth"><span><span class="nav-ava">' + avatarInner(u.avatar) + '</span> ' + tr('home_hi', esc(u.name)) + '</span><a class="btn small" href="#login">' + tr('home_profile') + '</a></div>'
+      ? '<div class="card home-auth"><span>' + esc(u.avatar) + tr('home_hi', esc(u.name)) + '</span><a class="btn small" href="#login">' + tr('home_profile') + '</a></div>'
       : '<div class="card home-auth"><span>' + tr('home_guest') + '</span><a class="btn small primary" href="#login">' + tr('nav_login') + '</a></div>';
     $('#home-stats').innerHTML =
       '<div class="card"><b>' + done + ' / ' + total + '</b><span>' + tr('home_stat_lessons') + '</span></div>' +
